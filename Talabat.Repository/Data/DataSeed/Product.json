@@ -1,0 +1,47 @@
+[
+  {
+
+    "Name": "Laptop",
+    "Description": "A high-performance laptop with Intel Core i7 processor.",
+    "Price": 1200.99,
+    "PictureUrl": "images/products/Sb-ang1.png",
+    "ProductTypeId": 1,
+    "ProductBrandId": 1
+  },
+  {
+
+    "Name": "Smartphone",
+    "Description": "Latest model smartphone with 6.5-inch display and 128GB storage.",
+    "Price": 800.50,
+    "PictureUrl": "images/products/Sb-ang2.png",
+    "ProductTypeId": 1,
+    "ProductBrandId": 1
+  },
+  {
+
+    "Name": "Headphones",
+    "Description": "Noise-cancelling over-ear headphones with 20-hour battery life.",
+    "PictureUrl": "images/products/Sb-ang3.png",
+    "Price": 250.00,
+    "ProductTypeId": 2,
+    "ProductBrandId": 1
+  },
+  {
+
+    "Name": "Smartwatch",
+    "Description": "Smartwatch with heart rate monitor and GPS.",
+    "Price": 250.00,
+    "PictureUrl": "images/products/Sb-ang4.png",
+    "ProductTypeId": 3,
+    "ProductBrandId": 2
+  },
+  {
+
+    "Name": "Tablet",
+    "Description": "10-inch tablet with 64GB storage and quad-core processor.",
+    "Price": 300.00,
+    "PictureUrl": "images/products/Sb-ang5-png",
+    "ProductTypeId": 2,
+    "ProductBrandId": 4
+  }
+]
