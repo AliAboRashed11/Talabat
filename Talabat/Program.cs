@@ -1,6 +1,11 @@
 
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Talabat.Core.IRepositories;
+using Talabat.Errors;
+using Talabat.Helper;
+using Talabat.Middlewares;
 using Talabat.Repository;
 using Talabat.Repository.Data;
 
@@ -24,6 +29,22 @@ namespace Talabat
             });
 
             builder.Services.AddScoped(typeof(IGenericRepositry<>),typeof(GenericRepository<>));
+            //builder.Services.AddAutoMapper(M => M.AddProfile(new MappingProfiles()));
+            builder.Services.AddAutoMapper(typeof(MappingProfiles));
+            builder.Services.Configure<ApiBehaviorOptions>(Options =>
+            {
+                Options.InvalidModelStateResponseFactory = (actionContex) => {
+
+                    var errors = actionContex.ModelState.Where(P => P.Value.Errors.Count() > 0)
+                    .SelectMany(P => P.Value.Errors).Select(E => E.ErrorMessage).ToArray();
+                    var validtionErrorRespose = new ApiValidationErrorResponse()
+                    {
+                        Errors = errors
+
+                    };
+                    return new BadRequestObjectResult(validtionErrorRespose);
+                };
+            });
             var app = builder.Build();
 
             using var scop = app.Services.CreateScope();
@@ -47,17 +68,19 @@ namespace Talabat
                 logger.LogError(ex, ex.Message);
 
             }
+
+            app.UseMiddleware<ExceptionMiddleware>();
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
 
+            app.UseStaticFiles();
 
             app.MapControllers();
     
