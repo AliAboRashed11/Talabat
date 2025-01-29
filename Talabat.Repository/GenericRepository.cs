@@ -32,7 +32,7 @@ namespace Talabat.Repository
         {
             return await _context.Set<T>().FindAsync(id);
         }
-        public async Task<IEnumerable<T>> GetAllWithSpecAsync(ISpecification<T> spec)
+        public async Task<IReadOnlyList<T>> GetAllWithSpecAsync(ISpecification<T> spec)
         {
             return await ApplySpecifiation(spec).ToListAsync();
         }
@@ -46,6 +46,11 @@ namespace Talabat.Repository
         private IQueryable<T> ApplySpecifiation(ISpecification<T> spec) {
         
         return SpecificationEvalutor<T>.GetQuery(_context.Set<T>(),spec);
+        }
+
+        public async Task<int> GetCountWithSpecAsync(ISpecification<T> spec)
+        {
+            return await ApplySpecifiation(spec).CountAsync();
         }
     }
 }

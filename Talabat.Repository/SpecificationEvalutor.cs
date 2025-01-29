@@ -14,14 +14,27 @@ namespace Talabat.Repository
 
         public static IQueryable<TEntity> GetQuery(IQueryable<TEntity> InputQuery, ISpecification<TEntity> spc)
         {
-            var query = InputQuery;  // _context.Products
+            var query = InputQuery;  
 
             if (spc.wheres is not null)
 
-                query = InputQuery.Where(spc.wheres);// _context.Products.Where(a=> a. Id == 1)
+                query = InputQuery.Where(spc.wheres);
 
-            query = spc.Includes.Aggregate(query, (currantQuery,incloudExpression) => currantQuery.Include(incloudExpression));
+            if (spc.OrderBy is not null)
+               query = query.OrderBy(spc.OrderBy);
 
+            if(spc.OrderByDescending is not null)
+
+                query = query.OrderByDescending(spc.OrderByDescending);
+
+            if (spc.IsPaginationEnabled)
+
+                query = query.Skip(spc.Skip).Take(spc.Take);
+
+
+                query = spc.Includes.Aggregate(query, (currantQuery,incloudExpression) => currantQuery.Include(incloudExpression));
+
+            
             return query;
  
 

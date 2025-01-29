@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 using Talabat.Core.IRepositories;
 using Talabat.Errors;
+using Talabat.Extensions;
 using Talabat.Helper;
 using Talabat.Middlewares;
 using Talabat.Repository;
@@ -20,32 +22,24 @@ namespace Talabat
             // Add services to the container.
 
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerServicesExtension();
             builder.Services.AddDbContext<StoreContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("CS"));
             });
 
-            builder.Services.AddScoped(typeof(IGenericRepositry<>),typeof(GenericRepository<>));
-            //builder.Services.AddAutoMapper(M => M.AddProfile(new MappingProfiles()));
-            builder.Services.AddAutoMapper(typeof(MappingProfiles));
-            builder.Services.Configure<ApiBehaviorOptions>(Options =>
-            {
-                Options.InvalidModelStateResponseFactory = (actionContex) => {
+            builder.Services.AddSingleton<IConnectionMultiplexer>(S => {
 
-                    var errors = actionContex.ModelState.Where(P => P.Value.Errors.Count() > 0)
-                    .SelectMany(P => P.Value.Errors).Select(E => E.ErrorMessage).ToArray();
-                    var validtionErrorRespose = new ApiValidationErrorResponse()
-                    {
-                        Errors = errors
 
-                    };
-                    return new BadRequestObjectResult(validtionErrorRespose);
-                };
+                var connection = builder.Configuration.GetConnectionString("CSRedis");
+
+                return ConnectionMultiplexer.Connect(connection);
+
             });
-            var app = builder.Build();
+
+            builder.Services.AddApplicationServices();
+
+                var app = builder.Build();
 
             using var scop = app.Services.CreateScope();
 
@@ -73,9 +67,9 @@ namespace Talabat
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerMiddlewares();
             }
+            app.UseStatusCodePagesWithReExecute("Error/{0}");
             app.UseHttpsRedirection();
 
             app.UseAuthorization();

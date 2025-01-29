@@ -18,7 +18,6 @@ namespace Talabat.Controllers
         }
 
         [HttpGet]
-
         public async Task<ActionResult<IEnumerable<Employee>>> GetEmployees() { 
             var spec = new EmployeeWithBrandAndTypeSpecification();
 
