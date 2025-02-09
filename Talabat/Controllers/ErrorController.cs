@@ -7,7 +7,6 @@ namespace Talabat.Controllers
     [Route("Error/{code}")]
     [ApiController]
     [ApiExplorerSettings(IgnoreApi = true)]
-   
     public class ErrorController : ControllerBase
     {
       
