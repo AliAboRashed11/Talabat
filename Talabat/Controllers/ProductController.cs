@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.RegularExpressions;
+using Talabat.Core;
 using Talabat.Core.Entities;
 using Talabat.Core.IRepositories;
 using Talabat.Core.ISpecifications;
@@ -19,32 +20,29 @@ namespace Talabat.Controllers
     {
 
 
-        private readonly IGenericRepositry<Product> _repositry;
+      
         private readonly IMapper _mapper;
-       
-        private readonly IGenericRepositry<ProductBrand> _brandsRepo;
-        private readonly IGenericRepositry<ProductType> _typesRepo;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ProductController(IGenericRepositry<Product> repositry, IMapper mapper,
-           
-            IGenericRepositry<ProductBrand> brandsRepo,
-            IGenericRepositry<ProductType> typesRepo
+
+        public ProductController(IGenericRepositry<Product> repositry, IMapper mapper, IUnitOfWork unitOfWork
+
+
             )
         {
-            _repositry = repositry;
+
             _mapper = mapper;
-            
-           _brandsRepo = brandsRepo;
-            _typesRepo = typesRepo;
+            _unitOfWork = unitOfWork;
         }
+          
         [Authorize]
         [HttpGet]
         public async Task<ActionResult<Pagination<ProductToReturnDto>>> GetProducts([FromQuery] ProductSpecParms specParams) {
             var spec = new productWithBrandAndTypeSpecification(specParams);
-            var products = await _repositry.GetAllWithSpecAsync(spec);
+            var products = await _unitOfWork.Repository<Product>().GetAllWithSpecAsync(spec);
             var data = _mapper.Map<IReadOnlyList<Product>,IReadOnlyList<ProductToReturnDto>>(products);
             var countSpec =  new  ProductWithFilterationForCountSpecifisation(specParams);
-            var count = await _repositry.GetCountWithSpecAsync(countSpec);
+            var count = await _unitOfWork.Repository<Product>().GetCountWithSpecAsync(countSpec);
             return Ok(new Pagination<ProductToReturnDto>(specParams.PageIndex,specParams.PageSiza, count, data));
         }
         [ProducesResponseType(typeof(ProductToReturnDto), StatusCodes.Status200OK)]
@@ -53,21 +51,21 @@ namespace Talabat.Controllers
         public async Task<ActionResult<IQueryable<ProductToReturnDto>>> GetProduct(int id)
         {
             var spec = new productWithBrandAndTypeSpecification(id);
-            var product = await _repositry.GetByIdWithSpecAsync(spec);
+            var product = await _unitOfWork.Repository<Product>().GetByIdWithSpecAsync(spec);
             if (product is null) return NotFound(new ApiResponse(404));
             return Ok(_mapper.Map<Product, ProductToReturnDto>(product));
 
         }
         [HttpGet("brand")]
-        public async Task<ActionResult<IEnumerable<ProductBrand>>> GetBrends() { 
-        var brands = await _brandsRepo.GetAllAsync();
+        public async Task<ActionResult<IReadOnlyList<ProductBrand>>> GetBrands() { 
+        var brands = await _unitOfWork.Repository<ProductBrand>().GetAllAsync();
             return Ok(brands);
         
         }
         [HttpGet("types")]
-        public async Task<ActionResult<IEnumerable<ProductType>>> GetTypes()
+        public async Task<ActionResult<IReadOnlyList<ProductType>>> GetTypes()
         {
-            var types = await _typesRepo.GetAllAsync();
+            var types = await _unitOfWork.Repository<ProductType>().GetAllAsync();
             return Ok(types);
         }
             
