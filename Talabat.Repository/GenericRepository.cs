@@ -21,11 +21,7 @@ namespace Talabat.Repository
         }
         public async Task<IEnumerable<T>> GetAllAsync()
         {
-            //if (typeof(T) == typeof(Product))
-            //    return (IEnumerable<T>) await _context.Products.Include(a => a.ProductBrand).Include(P=> P.ProductType).ToListAsync();
-            //else
-         return await _context.Set<T>().ToListAsync();
-        
+                return await _context.Set<T>().ToListAsync();
         }
 
         public async Task<T> GetbyIdAsync(int id)
@@ -51,6 +47,22 @@ namespace Talabat.Repository
         public async Task<int> GetCountWithSpecAsync(ISpecification<T> spec)
         {
             return await ApplySpecifiation(spec).CountAsync();
+        }
+
+        public async Task Add(T entity)
+        {
+            await _context.Set<T>().AddAsync(entity);
+        }
+
+        public void Update(T entity)
+        {
+            _context.Set<T>().Update(entity);
+            //_context.Entry(entity).State = EntityState.Modified;
+        }
+
+        public void Delete(T entity)
+        {
+            _context.Set<T>().Remove(entity);
         }
     }
 }
