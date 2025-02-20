@@ -25,10 +25,7 @@ namespace Talabat.Controllers
         private readonly IUnitOfWork _unitOfWork;
 
 
-        public ProductController( IMapper mapper, IUnitOfWork unitOfWork
-
-
-            )
+        public ProductController( IMapper mapper, IUnitOfWork unitOfWork)
         {
 
             _mapper = mapper;
