@@ -29,7 +29,6 @@ namespace Talabat.Controllers
         {
             var mapbasket = _mapper.Map<CustomerBasketDto,CustomerBasket>(Basket);
             var basket = await _basketRepository.UpdateBasketAsync(mapbasket);
-
             if (basket is null) return BadRequest(new ApiResponse(400));
             return basket;
         }
