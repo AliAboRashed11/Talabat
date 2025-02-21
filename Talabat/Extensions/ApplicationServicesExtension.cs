@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Talabat.Core;
 using Talabat.Core.IRepositories;
+using Talabat.Core.IServies;
 using Talabat.Errors;
 using Talabat.Helper;
 using Talabat.Repository;
+using Talabat.Service;
 
 namespace Talabat.Extensions
 {
@@ -12,9 +14,9 @@ namespace Talabat.Extensions
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
             services.AddScoped(typeof(IBasketRepository), typeof(BasketRepository));
-           /* services.AddScoped(typeof(IGenericRepositry<>), typeof(GenericRepository<>))*/;
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddAutoMapper(typeof(MappingProfiles));
+            services.AddScoped<IPaymentService, PaymentService>();
             services.Configure<ApiBehaviorOptions>(Options =>
             {
                 Options.InvalidModelStateResponseFactory = (actionContex) => {
