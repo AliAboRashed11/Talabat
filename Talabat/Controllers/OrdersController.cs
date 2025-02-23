@@ -54,7 +54,6 @@ namespace Talabat.Controllers
             return Ok(_mapper.Map<Order,OrderToReturnDto>(order));
         }
 
-        
         [HttpGet("deliveryMethods")]
         public async Task<ActionResult<IEnumerable<DeliveryMethod>>> GetDeliveryMethods()
         {

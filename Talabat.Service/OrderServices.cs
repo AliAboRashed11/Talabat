@@ -18,18 +18,20 @@ namespace Talabat.Service
     {
         private readonly IBasketRepository _basketRepository;
         private readonly IUnitOfWork _unitOfWork;
-
+        private readonly IPaymentService _paymentService;
 
         public OrderServices(IBasketRepository basketRepository,
-            IUnitOfWork unitOfWork
+            IUnitOfWork unitOfWork,
+            IPaymentService paymentService
 
             )
         {
             _basketRepository = basketRepository;
             _unitOfWork = unitOfWork;
-
+            _paymentService = paymentService;
         }
-        public async Task<Order?> CreateOrderAsync(string buyerEmail, string basketId, int delverMethodId, Core.Entities.Order_Aggregate.Address shippingAddress)
+        public async Task<Order?> CreateOrderAsync(string buyerEmail, string basketId, int delverMethodId,
+            Core.Entities.Order_Aggregate.Address shippingAddress)
         {
             //1. Get Basket From Baskets Repo
             var basket = await _basketRepository.GetBasketAsync(basketId);
@@ -49,7 +51,13 @@ namespace Talabat.Service
             //4.Get Delivery Method From DeliveryMethods Repo
             var delverMethod = await _unitOfWork.Repository<DeliveryMethod>().GetbyIdAsync(delverMethodId);
             //5.Create Order
-            var order = new Order(buyerEmail, shippingAddress, delverMethod, orderItems, subtotal);
+            var spec = new OrderbyWithPaymentIntentIdSpecifications(basket.PaymentIntentId);
+            var exsitingOrder = await _unitOfWork.Repository<Order>().GetByIdWithSpecAsync(spec);
+            if (exsitingOrder is not null) { 
+            _unitOfWork.Repository<Order>().Delete(exsitingOrder);
+                await _paymentService.CreateOrUpdatePaymentIntent(basketId);
+            }
+            var order = new Order(buyerEmail, shippingAddress, delverMethod, orderItems, subtotal, basket.PaymentIntentId);
             await _unitOfWork.Repository<Order>().Add(order);
             //6.Save To Database [TODO]
             var result = await _unitOfWork.Complete();
