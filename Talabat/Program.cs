@@ -48,6 +48,15 @@ namespace Talabat
 
             builder.Services.AddIdentityServices(builder.Configuration);
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("MyPolicy", options =>
+                {
+                    options.AllowAnyHeader().AllowAnyMethod().WithOrigins(builder.Configuration["FrontUrl"]);
+
+                });
+            });
+
             #region Swagger Setting
             builder.Services.AddSwaggerGen(swagger =>
             {
@@ -123,7 +132,8 @@ namespace Talabat
             }
             app.UseStatusCodePagesWithReExecute("Error/{0}");
             app.UseHttpsRedirection();
-
+            app.UseCors("MyPolicy");
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseStaticFiles();
